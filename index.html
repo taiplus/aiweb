@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>何文才 & 阮文利 | Future Tech Taiwan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:ital,wght@1,600;900&family=Orbitron:wght@400;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* --- GLOBAL RESET --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background-color: #000; color: #fff; 
+            font-family: 'Inter', 'Noto Sans TC', sans-serif; 
+            overflow-x: hidden; 
+        }
+
+        /* CANVAS BACKGROUND */
+        #neural-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none; opacity: 1; 
+        }
+        
+        /* =========================================
+           PHẦN 1: WEBSITE CHÍNH
+           ========================================= */
+        #main-website {
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            width: 100%; min-height: 100vh;
+            background: radial-gradient(circle at 50% 10%, rgba(20,20,30,0.4) 0%, rgba(0,0,0,0.8) 100%);
+            display: flex; flex-direction: column;
+            position: relative; z-index: 1;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 50px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100;
+        }
+        
+        .brand-wrapper { display: flex; align-items: center; gap: 25px; }
+        .logo { 
+            font-family: 'Orbitron', 'Noto Sans TC', sans-serif; 
+            font-size: 1.4rem; font-weight: 700; color: #fff; 
+            display: flex; align-items: center; gap: 10px; white-space: nowrap; 
+        }
+        .logo span { color: #d4af37; }
+
+        .founder-avatars {
+            display: flex; gap: 10px; align-items: center;
+            padding-left: 20px; border-left: 1px solid rgba(255,255,255,0.2);
+        }
+        .mini-avatar {
+            width: 45px; height: 45px; border-radius: 8px; border: 2px solid #d4af37;
+            object-fit: cover; transition: 0.3s; cursor: pointer; background: #000;
+        }
+        .mini-avatar:hover { transform: scale(1.1); box-shadow: 0 0 15px rgba(212, 175, 55, 0.6); border-color: #fff; }
+
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+        .nav-links a { text-decoration: none; color: #ccc; font-weight: 500; transition: 0.3s; font-size: 0.95rem; font-family: 'Noto Sans TC', sans-serif; }
+        .nav-links a:hover { color: #d4af37; text-shadow: 0 0 10px rgba(212, 175, 55, 0.5); }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            display: flex; flex-direction: column; 
+            justify-content: flex-end; 
+            align-items: center;
+            text-align: center; 
+            position: relative; 
+            min-height: 65vh; 
+            padding-bottom: 30px; 
+        }
+
+        /* --- ROBOT EYES --- */
+        .mech-eye-container {
+            position: absolute;
+            width: 200px; height: 200px; 
+            background: radial-gradient(circle at 40% 40%, #2a2a2a, #000);
+            border-radius: 50%;
+            border: 3px solid #333;
+            box-shadow: 
+                0 0 40px rgba(0, 0, 0, 0.9), 
+                inset 0 0 30px #000,
+                0 0 0 5px rgba(30, 30, 30, 0.5);
+            z-index: 10;
+            overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+            transition: box-shadow 0.3s;
+        }
+
+        #eye-1 { bottom: 320px; left: 5%; transform: rotate(-10deg); } 
+        #eye-2 { bottom: 350px; right: 5%; transform: rotate(10deg); }
+
+        .mech-eye-container::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
+            border-radius: 50%; z-index: 12; pointer-events: none;
+        }
+
+        .pupil-group { width: 100%; height: 100%; position: relative; display: flex; justify-content: center; align-items: center; }
+        .iris {
+            width: 90px; height: 90px;
+            background: radial-gradient(circle, #ffcc00 0%, #d4af37 40%, #5e4b00 100%);
+            border-radius: 50%; position: relative;
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.9);
+            display: flex; justify-content: center; align-items: center;
+        }
+        .pupil-black { width: 40px; height: 40px; background: #000; border-radius: 50%; position: relative; }
+        .pupil-black::after {
+            content: ''; position: absolute; top: 5px; left: 5px;
+            width: 12px; height: 12px; background: rgba(255,255,255,0.9);
+            border-radius: 50%; box-shadow: 0 0 8px rgba(255,255,255,0.9);
+        }
+        .scan-line {
+            position: absolute; width: 100%; height: 2px; background: rgba(255,0,0,0.6);
+            top: 50%; animation: scanning 2s infinite linear; opacity: 0.7;
+        }
+        @keyframes scanning { 0% { transform: translateY(-40px); } 100% { transform: translateY(40px); } }
+
+        .lid { position: absolute; left: 0; width: 100%; height: 50%; background: #111; border-bottom: 3px solid #444; z-index: 15; transition: 0.05s; }
+        .lid.top { top: 0; transform-origin: top; transform: scaleY(0); }
+        .lid.bottom { bottom: 0; border-bottom: none; border-top: 3px solid #444; transform-origin: bottom; transform: scaleY(0); }
+        .mech-eye-container.blink .lid.top { transform: scaleY(1); }
+        .mech-eye-container.blink .lid.bottom { transform: scaleY(1); }
+
+        /* --- GLITCH TITLE EFFECT --- */
+        .hero h1 {
+            font-size: 4.5rem; line-height: 1.1; margin-bottom: 20px; font-weight: 900;
+            color: #fff; font-family: 'Noto Sans TC', sans-serif; position: relative; z-index: 20;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: glitch-anim 2s infinite linear alternate-reverse;
+        }
+        
+        @keyframes glitch-anim {
+            0% { transform: translate(0); text-shadow: 0 0 0 transparent; }
+            2% { transform: translate(-3px, 2px); text-shadow: 3px 0 #ff0000, -3px 0 #0000ff; }
+            4% { transform: translate(3px, -2px); text-shadow: -3px 0 #ff0000, 3px 0 #0000ff; }
+            5% { transform: translate(0); text-shadow: 0 0 0 transparent; }
+            55% { transform: translate(0); text-shadow: 0 0 0 transparent; }
+            57% { transform: translate(2px, 0); text-shadow: 2px 0 red, -2px 0 blue; }
+            58% { transform: translate(0); text-shadow: 0 0 0 transparent; }
+            100% { transform: translate(0); }
+        }
+
+        .hero p.subtitle { 
+            font-size: 1.3rem; color: #aaa; max-width: 800px; margin-bottom: 30px; 
+            font-weight: 300; position: relative; z-index: 20; 
+            background: rgba(0,0,0,0.4); padding: 10px 20px; border-radius: 20px; 
+            backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* --- TECH MARQUEE --- */
+        .tech-marquee { padding: 0 0 30px 0; background: rgba(255,255,255,0.02); position: relative; z-index: 20; border-top: 1px solid rgba(255,255,255,0.1); overflow: hidden; }
+        .marquee-track { display: flex; width: max-content; gap: 20px; animation: scrollMarquee 40s linear infinite; }
+        .tech-item { width: 300px; height: 180px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(212, 175, 55, 0.2); position: relative; }
+        .tech-item img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7) contrast(1.2) grayscale(0.5); transition: 0.5s; }
+        .tech-item:hover img { filter: brightness(1) contrast(1) grayscale(0); transform: scale(1.05); }
+        .tech-item::after { content: ''; position: absolute; inset: 0; background: linear-gradient(totop, rgba(212, 175, 55, 0.2), transparent); pointer-events: none; }
+        @keyframes scrollMarquee { 0% { transform: translateX(0); } 100% { transform: translateX(calc(-320px * 6)); } }
+        
+        /* --- 3D TILT CARDS --- */
+        .services { 
+            padding: 80px 50px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 30px; max-width: 1400px; margin: 0 auto; margin-bottom: 50px; position: relative; z-index: 20; 
+            perspective: 1000px; 
+        }
+        .card {
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=500');
+            background-size: cover; background-position: center; 
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 30px; border-radius: 15px; 
+            display: flex; flex-direction: column; justify-content: space-between; height: 350px; 
+            position: relative; overflow: hidden;
+            transform-style: preserve-3d;
+            transition: transform 0.1s; 
+        }
+        .card:nth-child(2) { background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=500'); }
+        
+        .card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(125deg, transparent 0%, rgba(255,255,255,0.1) 30%, transparent 60%);
+            transform: translateX(-100%); transition: 0.5s; pointer-events: none; z-index: 10;
+        }
+        .card:hover::before { transform: translateX(100%); }
+        .card:hover { border-color: #d4af37; box-shadow: 0 0 30px rgba(212, 175, 55, 0.15); }
+
+        .card-content { transform: translateZ(30px); } 
+        .card-icon { font-size: 2.5rem; margin-bottom: 20px; color: #d4af37; }
+        .card h3 { font-size: 1.5rem; margin-bottom: 10px; font-family: 'Noto Sans TC', serif; font-weight: 700; color: #fff; }
+        .card p { color: #ccc; line-height: 1.6; font-size: 1rem; font-family: 'Noto Sans TC', sans-serif; }
+        .card-action { margin-top: 20px; font-weight: bold; color: #fff; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; transform: translateZ(20px); }
+
+        .card.special {
+            background: linear-gradient(rgba(212, 175, 55, 0.1), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=500');
+            background-size: cover; border: 1px solid #d4af37;
+        }
+
+        /* Footer */
+        footer { background: #0a0a0a; border-top: 1px solid #222; padding: 80px 50px 30px 50px; margin-top: auto; position: relative; z-index: 20; }
+        .footer-container { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 50px; }
+        .footer-col h4 { color: #fff; font-size: 1.2rem; margin-bottom: 25px; font-family: 'Noto Sans TC', sans-serif; letter-spacing: 1px; }
+        .footer-desc { color: #888; line-height: 1.6; margin-bottom: 20px; max-width: 350px; font-family: 'Noto Sans TC', sans-serif; }
+        .contact-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 20px; color: #aaa; font-family: 'Noto Sans TC', sans-serif; }
+        .contact-item i { color: #d4af37; margin-top: 5px; }
+        .social-links { display: flex; gap: 15px; margin-top: 20px; }
+        .social-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #333; display: flex; align-items: center; justify-content: center; color: #fff; transition: 0.3s; text-decoration: none; }
+        .social-btn:hover { background: #d4af37; border-color: #d4af37; color: #000; box-shadow: 0 0 15px #d4af37; }
+        .footer-bottom { margin-top: 60px; padding-top: 20px; border-top: 1px solid #222; text-align: center; color: #555; font-size: 0.9rem; font-family: 'Noto Sans TC', sans-serif; }
+
+        /* =========================================
+           PHẦN 2: PRESENTATION LAYER (GIỮ NGUYÊN)
+           ========================================= */
+        #presentation-layer {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000; z-index: 9999;
+        }
+        
+        :root { --p-accent: #d4af37; --p-glass: rgba(0, 0, 0, 0.15); }
+        .p-btn-start {
+            padding: 20px 60px; border: 2px solid var(--p-accent); color: var(--p-accent);
+            background: transparent; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 3px; font-weight: 800;
+            cursor: pointer; transition: 0.3s; font-family: 'Noto Sans TC', sans-serif; position: relative; z-index: 20;
+        }
+        .p-btn-start:hover { background: var(--p-accent); color: #000; box-shadow: 0 0 50px rgba(212, 175, 55, 0.6); }
+
+        .bg-layer {
+            position: absolute; inset: 0; background-size: cover; background-position: center;
+            opacity: 0; transform: scale(1.1); transition: opacity 0.8s ease-in-out, transform 15s linear; z-index: -1;
+            filter: brightness(0.5); 
+        }
+        .bg-layer.active { opacity: 1; transform: scale(1); }
+        .bg-overlay { position: absolute; inset: 0; background: linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 100%); z-index: 0; pointer-events: none; }
+
+        .slide-container {
+            position: absolute; inset: 0; padding: 40px 60px; z-index: 10;
+            display: flex; flex-direction: column; justify-content: center;
+            opacity: 0; transform: translateY(30px); pointer-events: none; transition: 0.8s ease-out;
+        }
+        .slide-container.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+        .header-group { margin-bottom: 25px; position: relative; z-index: 2; text-shadow: 2px 2px 8px rgba(0,0,0,0.9); }
+        .header-group h2 { color: var(--p-accent); font-family: 'Noto Sans TC', serif; font-style: italic; font-size: 1.4rem; margin-bottom: 10px; }
+        .header-group h1 { font-size: 3.5rem; line-height: 1.2; font-weight: 900; margin-bottom: 20px; max-width: 900px; text-transform: uppercase; color: #fff; font-family: 'Noto Sans TC', sans-serif; }
+
+        /* Updated Content Box for Long Text */
+        .content-box {
+            background: rgba(0, 0, 0, 0.3); border-left: 4px solid var(--p-accent);
+            padding: 40px 50px; width: 70%; 
+            max-height: 70vh; /* Giới hạn chiều cao */
+            overflow-y: auto; /* Cho phép cuộn */
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+        }
+        .content-box::-webkit-scrollbar { width: 8px; }
+        .content-box::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        .content-box::-webkit-scrollbar-thumb { background: var(--p-accent); border-radius: 4px; }
+        .content-box::-webkit-scrollbar-thumb:hover { background: #fff; }
+
+        .intro-text { font-size: 1.2rem; color: #fff; margin-bottom: 30px; line-height: 1.8; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 25px; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); font-family: 'Noto Sans TC', sans-serif; }
+        .section-title { color: var(--p-accent); font-family: 'Noto Sans TC', serif; font-size: 1.4rem; font-weight: bold; margin-top: 35px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; text-shadow: 1px 1px 2px rgba(0,0,0,0.9); border-left: 2px solid var(--p-accent); padding-left: 15px; }
+        .detail-text { font-size: 1.05rem; color: #e0e0e0; line-height: 1.9; text-align: justify; margin-bottom: 20px; font-weight: 400; text-shadow: 1px 1px 2px rgba(0,0,0,0.9); font-family: 'Noto Sans TC', sans-serif;}
+        
+        .btn-celebrate {
+            padding: 25px 50px; font-size: 1.5rem; font-weight: 800; text-transform: uppercase;
+            color: #000; background: var(--p-accent); border: none; border-radius: 50px;
+            cursor: pointer; transition: 0.3s; box-shadow: 0 0 30px var(--p-accent);
+            animation: pulse 2s infinite; font-family: 'Noto Sans TC', sans-serif;
+        }
+        .btn-celebrate:hover { transform: scale(1.05); background: #fff; }
+        .nav-hint { position: absolute; bottom: 30px; right: 60px; color: rgba(255,255,255,0.7); font-size: 0.9rem; display: flex; gap: 20px; z-index: 20; font-weight: 600; text-shadow: 1px 1px 2px black; font-family: 'Noto Sans TC', sans-serif; }
+        .btn-exit {
+            position: absolute; top: 20px; right: 20px; z-index: 1000;
+            background: rgba(0,0,0,0.5); color: #fff; border: 1px solid #fff;
+            padding: 10px 20px; cursor: pointer; border-radius: 30px;
+            font-size: 0.9rem; text-transform: uppercase; transition: 0.3s; font-family: 'Noto Sans TC', sans-serif;
+        }
+        .btn-exit:hover { background: #fff; color: #000; }
+
+        /* Bullet list style inside detail-text */
+        .detail-text ul { list-style: none; margin-left: 10px; margin-top: 10px; }
+        .detail-text li { position: relative; padding-left: 20px; margin-bottom: 8px; color: #ccc; }
+        .detail-text li::before { content: '•'; color: var(--p-accent); position: absolute; left: 0; font-weight: bold; }
+
+    </style>
+</head>
+<body>
+
+    <canvas id="neural-canvas"></canvas>
+
+    <div id="main-website">
+        <nav class="navbar">
+            <div class="brand-wrapper">
+                <div class="logo">
+                    <i class="fas fa-brain" style="color:#d4af37; font-size:1.8rem;"></i> 何文才 & 阮文利 <span>.AI</span>
+                </div>
+                
+                <div class="founder-avatars">
+                    <img src="https://placehold.co/100x100/d4af37/000?text=才" alt="He Wencai" class="mini-avatar" title="何文才 (Co-Founder)">
+                    <img src="https://placehold.co/100x100/d4af37/000?text=利" alt="Ruan Wenli" class="mini-avatar" title="阮文利 (Co-Founder)">
+                </div>
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="#">首頁</a></li>
+                <li><a href="#">服務項目</a></li>
+                <li><a href="#">關於我們</a></li>
+                <li><a href="#" style="color: #d4af37;">聯絡我們</a></li>
+            </ul>
+        </nav>
+
+        <section class="hero">
+            
+            <div class="mech-eye-container" id="eye-1">
+                <div class="lid top"></div>
+                <div class="lid bottom"></div>
+                <div class="pupil-group">
+                    <div class="iris">
+                        <div class="pupil-black"></div>
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mech-eye-container" id="eye-2">
+                <div class="lid top"></div>
+                <div class="lid bottom"></div>
+                <div class="pupil-group">
+                    <div class="iris">
+                        <div class="pupil-black"></div>
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+            </div>
+
+            <h1>運用人工智慧<br>塑造無限未來</h1>
+            <p class="subtitle">位於台北的頂尖數位轉型與 AI 解決方案策略合作夥伴。</p>
+            
+            <button class="p-btn-start" style="font-size: 1rem; padding: 15px 40px;" onclick="launchPresentation()">探索 AI 大師課程</button>
+        </section>
+
+        <section class="tech-marquee">
+            <div class="marquee-track">
+                <div class="tech-item"><img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=500" alt="AI Brain"></div>
+                <div class="tech-item"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=500" alt="Chip"></div>
+                <div class="tech-item"><img src="https://images.unsplash.com/photo-1531746790731-6c087fecd65a?q=80&w=500" alt="Robot"></div>
+                <div class="tech-item"><img src="https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80&w=500" alt="Blockchain"></div>
+                <div class="tech-item"><img src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=500" alt="Cyborg"></div>
+                <div class="tech-item"><img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=500" alt="Cyberpunk"></div>
+                 <div class="tech-item"><img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=500" alt="AI Brain"></div>
+                <div class="tech-item"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=500" alt="Chip"></div>
+                <div class="tech-item"><img src="https://images.unsplash.com/photo-1531746790731-6c087fecd65a?q=80&w=500" alt="Robot"></div>
+                <div class="tech-item"><img src="https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80&w=500" alt="Blockchain"></div>
+                <div class="tech-item"><img src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=500" alt="Cyborg"></div>
+                <div class="tech-item"><img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=500" alt="Cyberpunk"></div>
+            </div>
+        </section>
+
+        <section class="services">
+            <div class="card tilt-card">
+                <div class="card-content">
+                    <i class="fas fa-microchip card-icon"></i>
+                    <h3>AI 晶片設計</h3>
+                    <p>與新竹科學園區頂尖半導體製造商合作，優化深度學習硬體效能。</p>
+                </div>
+                <div class="card-action">查看詳情 <i class="fas fa-arrow-right"></i></div>
+            </div>
+
+            <div class="card tilt-card">
+                <div class="card-content">
+                    <i class="fas fa-server card-icon"></i>
+                    <h3>雲端運算中心</h3>
+                    <p>位於台北的資料中心系統，確保企業大數據即時處理與傳輸速度。</p>
+                </div>
+                <div class="card-action">查看詳情 <i class="fas fa-arrow-right"></i></div>
+            </div>
+
+            <div class="card special tilt-card" onclick="launchPresentation()">
+                <div class="card-content">
+                    <i class="fas fa-graduation-cap card-icon" style="color: #fff;"></i>
+                    <h3 style="color: #fff;">AI 大師課程</h3>
+                    <p style="color: #eee;">深入探討人工智慧的歷史、技術與未來發展。立即體驗沉浸式簡報！</p>
+                </div>
+                <div class="card-action" style="color: #d4af37;">點擊開始演示 <i class="fas fa-play-circle"></i></div>
+            </div>
+        </section>
+
+        <footer>
+            <div class="footer-container">
+                <div class="footer-col">
+                    <div class="logo" style="margin-bottom: 20px;"><i class="fas fa-brain"></i> 何文才 & 阮文利 <span>.AI</span></div>
+                    <p class="footer-desc">人工智慧研發領域的先驅。我們將台灣的科技實力與世界連結。</p>
+                    <div class="social-links">
+                        <a href="#" class="social-btn"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-btn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-btn"><i class="fab fa-line"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>關於我們</h4>
+                    <ul style="list-style: none;">
+                        <li style="margin-bottom: 10px;"><a href="#" style="color: #888; text-decoration: none;">品牌故事</a></li>
+                        <li style="margin-bottom: 10px;"><a href="#" style="color: #888; text-decoration: none;">代表性專案</a></li>
+                        <li style="margin-bottom: 10px;"><a href="#" style="color: #888; text-decoration: none;">投資人關係</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>聯絡資訊</h4>
+                    <div class="contact-item"><i class="fas fa-map-marker-alt"></i><span>110 台北市信義區<br>信義路五段7號<br>台北101大樓 35樓</span></div>
+                    <div class="contact-item"><i class="fas fa-phone-alt"></i><span>(+886) 2 2345 6789<br>(+886) 912 345 678</span></div>
+                    <div class="contact-item"><i class="fas fa-envelope"></i><span>contact@hewencai-ruanwenli.ai</span></div>
+                </div>
+            </div>
+            <div class="footer-bottom">&copy; 2026 何文才 & 阮文利 AI CORP. 版權所有。</div>
+        </footer>
+    </div>
+
+
+    <div id="presentation-layer">
+        <button class="btn-exit" onclick="exitPresentation()">退出演示 <i class="fas fa-times"></i></button>
+        <div class="bg-overlay"></div>
+        
+        <div class="bg-layer" style="background-image: url('https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1600');"></div> <div class="bg-layer" style="background-image: url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1600');"></div> <div class="bg-layer" style="background-image: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1600');"></div> <div class="bg-layer" style="background-image: url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=1600');"></div> <div class="bg-layer" style="background-image: url('https://images.unsplash.com/photo-1611974765270-ca12586343bb?q=80&w=1600');"></div> <div class="bg-layer" style="background-image: url('https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=1600');"></div> <div class="bg-layer" style="background-image: url('https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=1600');"></div> <div class="bg-layer" style="background-image: url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1600');"></div> <div class="bg-layer" style="background-image: url('https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?q=80&w=1600');"></div> <div class="bg-layer" style="background-image: url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1600');"></div> <div class="bg-layer" style="background-image: url('https://images.unsplash.com/photo-1507146426996-ef05306b995a?q=80&w=1600');"></div> <div class="bg-layer" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1600');"></div> <div id="deck">
+            <div class="slide-container active">
+                <div class="header-group">
+                    <h2>序章：新時代的黎明</h2>
+                    <h1>人工智慧：<br>第四次工業革命</h1>
+                </div>
+                <div class="content-box">
+                    <p class="intro-text">
+                        「我們正在經歷的變革，其規模、範圍和復雜性，與人類過去所經歷的任何事情都截然不同。」—— Klaus Schwab, WEF 創始人
+                    </p>
+                    <div class="section-title"><i class="fas fa-history"></i> 歷史演進：從寒冬到盛夏</div>
+                    <p class="detail-text">
+                        AI 的概念始於 1956 年的達特茅斯會議，但因硬體限制經歷了兩次著名的「AI 寒冬」。如今，我們正處於「AI 盛夏」，這歸功於三大支柱的匯聚：
+                        <ul>
+                            <li><strong>大數據 (Big Data)：</strong> 網際網路產生了海量的訓練素材。</li>
+                            <li><strong>演算法 (Algorithms)：</strong> 深度學習架構的數學突破。</li>
+                            <li><strong>算力 (Compute Power)：</strong> GPU 與 TPU 的平行運算能力指數級增長。</li>
+                        </ul>
+                    </p>
+                    <div class="section-title"><i class="fas fa-chart-line"></i> 經濟規模與影響力</div>
+                    <p class="detail-text">
+                        根據普華永道 (PwC) 的權威報告預測，到 2030 年，人工智慧將為全球 GDP 貢獻高達 <strong>15.7 兆美元</strong>。這不僅是生產力的提升，更是商業模式的徹底重構。AI 已不再是科技巨頭的專利，而是如同電力與網際網路一般，成為現代社會不可或缺的基礎設施。
+                    </p>
+                </div>
+            </div>
+
+            <div class="slide-container">
+                <div class="header-group">
+                    <h2>核心技術解析</h2>
+                    <h1>機器學習與<br>深度神經網絡</h1>
+                </div>
+                <div class="content-box">
+                    <p class="intro-text">
+                        告別傳統的「若P則Q」邏輯編程，我們進入了機率與統計的時代。
+                    </p>
+                    <div class="section-title"><i class="fas fa-brain"></i> 深度學習 (Deep Learning)</div>
+                    <p class="detail-text">
+                        這是一種模仿人腦神經元結構的機器學習技術。透過多層非線性處理單元（Layered Neural Networks），系統能從原始數據中自動提取特徵。
+                        <br><br>
+                        關鍵技術概念包括：
+                        <ul>
+                            <li><strong>反向傳播 (Backpropagation)：</strong> 透過計算誤差來調整神經元之間的權重，是神經網路「學習」的核心機制。</li>
+                            <li><strong>卷積神經網路 (CNNs)：</strong> 在電腦視覺領域展現了超越人類的圖像識別能力。</li>
+                        </ul>
+                    </p>
+                    <div class="section-title"><i class="fas fa-sitemap"></i> 學習範式的轉變</div>
+                    <p class="detail-text">
+                        從<strong>監督式學習</strong>（Supervised Learning，依靠大量人工標記數據）逐漸轉向<strong>非監督式學習</strong>（Unsupervised Learning）與<strong>強化學習</strong>（Reinforcement Learning），讓機器能在未知的環境中，透過試錯與獎勵機制自我進化，如同 AlphaGo 戰勝人類棋王那般震撼。
+                    </p>
+                </div>
+            </div>
+
+            <div class="slide-container">
+                <div class="header-group">
+                    <h2>自然語言處理</h2>
+                    <h1>大型語言模型<br>(LLMs) 的崛起</h1>
+                </div>
+                <div class="content-box">
+                    <p class="intro-text">
+                        圖靈測試的終結？機器終於學會了人類最引以為傲的技能——語言與邏輯。
+                    </p>
+                    <div class="section-title"><i class="fas fa-comments"></i> Transformer 架構革命</div>
+                    <p class="detail-text">
+                        Google 於 2017 年發表的論文《Attention Is All You Need》改變了一切。Transformer 架構透過「自注意力機制 (Self-Attention)」，解決了傳統 RNN 模型無法處理長距離依賴的問題，使模型能理解上下文的深層語義。這是 BERT、GPT 等現代模型的基石。
+                    </p>
+                    <div class="section-title"><i class="fas fa-robot"></i> 生成式 AI 的爆發</div>
+                    <p class="detail-text">
+                        ChatGPT 的出現標誌著 AI 進入了生成式時代 (Generative AI)。
+                        <ul>
+                            <li><strong>參數規模：</strong> GPT-4 據傳擁有數兆個參數，展現出了驚人的「湧現能力 (Emergent Abilities)」。</li>
+                            <li><strong>RLHF 技術：</strong> 透過「人類回饋強化學習」，讓模型的回答更符合人類的價值觀與指令意圖。</li>
+                        </ul>
+                        它不僅能對話，更能撰寫程式碼、創作詩歌、通過律師考試，甚至展現出初步的推理能力。
+                    </p>
+                </div>
+            </div>
+
+            <div class="slide-container">
+                <div class="header-group">
+                    <h2>智慧醫療</h2>
+                    <h1>生命科學的<br>數位化轉型</h1>
+                </div>
+                <div class="content-box">
+                    <p class="intro-text">
+                        AI 賦予了手術刀智慧，將醫療從「經驗醫學」推向「精準醫學」。
+                    </p>
+                    <div class="section-title"><i class="fas fa-dna"></i> AlphaFold 與蛋白質結構</div>
+                    <p class="detail-text">
+                        生物學界 50 年來的難題——「蛋白質摺疊問題」已被 DeepMind 的 AlphaFold 破解。它能預測幾乎所有已知蛋白質的 3D 結構。這意味著新藥開發、疫苗研製的時間將從數年縮短至數月，並能針對罕見疾病開發專屬療法。
+                    </p>
+                    <div class="section-title"><i class="fas fa-user-md"></i> 診斷與預防的革新</div>
+                    <p class="detail-text">
+                        <strong>醫學影像分析：</strong> AI 演算法在判讀 X 光片、MRI 掃描與病理切片時，能偵測出肉眼無法察覺的微小病灶，大幅提高癌症早期篩檢的存活率。
+                        <br>
+                        <strong>穿戴式裝置：</strong> 結合 IoT 數據，AI 能即時監測心律變異，預測心臟病發作或中風風險，將醫療重心從「治療」轉移至「預防」。
+                    </p>
+                </div>
+            </div>
+
+             <div class="slide-container">
+                <div class="header-group">
+                    <h2>金融科技</h2>
+                    <h1>Fintech 與<br>演算法經濟</h1>
+                </div>
+                <div class="content-box">
+                    <p class="intro-text">
+                        在數據就是新石油的時代，金融業是蘊藏量最豐富的油田。
+                    </p>
+                    <div class="section-title"><i class="fas fa-chart-bar"></i> 高頻交易 (HFT)</div>
+                    <p class="detail-text">
+                        華爾街已被演算法攻佔。AI 模型能分析全球新聞情緒、社群媒體趨勢（Sentiment Analysis）以及歷史數據，在毫秒（Millisecond）級別內執行數萬筆交易，捕捉人類交易員無法反應的微小套利機會。
+                    </p>
+                    <div class="section-title"><i class="fas fa-shield-alt"></i> 反洗錢與風險控制</div>
+                    <p class="detail-text">
+                        傳統的規則式審查已無法應對複雜的金融犯罪。機器學習模型透過「圖神經網路 (Graph Neural Networks)」，能分析資金流向的複雜關聯，即時識別異常交易模式，有效攔截詐欺與洗錢行為，同時為個人用戶提供更精準的信用評分 (Credit Scoring)。
+                    </p>
+                </div>
+            </div>
+
+             <div class="slide-container">
+                <div class="header-group">
+                    <h2>智慧城市</h2>
+                    <h1>數位孿生與<br>永續發展</h1>
+                </div>
+                <div class="content-box">
+                    <p class="intro-text">
+                        未來的城市將是一個會呼吸、會思考、具有自我修復能力的有機體。
+                    </p>
+                    <div class="section-title"><i class="fas fa-bolt"></i> 智慧電網 (Smart Grid)</div>
+                    <p class="detail-text">
+                        為了應對氣候變遷，AI 成為能源轉型的關鍵。系統能精確預測城市不同區域的電力需求峰值，自動調度太陽能、風能與儲能系統，優化能源分配效率，實現碳中和目標。
+                    </p>
+                    <div class="section-title"><i class="fas fa-city"></i> 數位孿生 (Digital Twins)</div>
+                    <p class="detail-text">
+                        在虛擬空間中建立與實體城市完全對應的數位模型。政策制定者可以在虛擬城市中模擬洪水、交通擁堵或突發傳染病，提前演練應對方案，從而優化城市規劃與災害管理系統。
+                    </p>
+                </div>
+            </div>
+
+            <div class="slide-container">
+                <div class="header-group">
+                    <h2>生成式藝術</h2>
+                    <h1>創意不再是<br>人類的專利</h1>
+                </div>
+                <div class="content-box">
+                    <p class="intro-text">
+                        從 Midjourney 到 Sora，AI 正以驚人的速度重寫藝術創作的定義。
+                    </p>
+                    <div class="section-title"><i class="fas fa-palette"></i> 擴散模型 (Diffusion Models)</div>
+                    <p class="detail-text">
+                        這類模型透過學習如何去除圖像中的噪點，從而「無中生有」地生成高品質圖像。設計師只需輸入文字提示 (Prompt)，AI 即可在幾秒內生成電影級的概念圖、室內設計方案或遊戲資產，大幅降低了創作門檻。
+                    </p>
+                    <div class="section-title"><i class="fas fa-film"></i> 影視產業的革命</div>
+                    <p class="detail-text">
+                        OpenAI 的 Sora 模型展示了僅憑文字就能生成長達一分鐘、具備物理規律且鏡頭語言豐富的高畫質影片。這將徹底改變特效製作、廣告拍攝與動畫產業的流程，讓「一人製片廠」成為可能，同時也引發了關於版權與真實性的深刻哲學討論。
+                    </p>
+                </div>
+            </div>
+
+            <div class="slide-container">
+                <div class="header-group">
+                    <h2>未來交通</h2>
+                    <h1>從自動駕駛到<br>立體移動</h1>
+                </div>
+                <div class="content-box">
+                    <p class="intro-text">
+                        釋放人類雙手，重塑人類的空間與時間觀念。
+                    </p>
+                    <div class="section-title"><i class="fas fa-car-side"></i> L5 全自動駕駛</div>
+                    <p class="detail-text">
+                        透過感測器融合 (Sensor Fusion) 技術，結合光達 (LiDAR)、毫米波雷達與高解析度鏡頭，車輛能建構 360 度無死角的 3D 世界。V2X (Vehicle-to-Everything) 通訊技術讓車輛能與紅綠燈、路況甚至其他車輛對話，實現零事故、零擁堵的交通願景。
+                    </p>
+                    <div class="section-title"><i class="fas fa-plane"></i> 空中移動革命 (eVTOL)</div>
+                    <p class="detail-text">
+                        AI 控制的電動垂直起降飛行器（俗稱空中計程車）將解決地面擁塞問題。複雜的飛控系統完全由 AI 接管，確保在城市高樓間的安全飛行，將 1 小時的通勤時間縮短至 10 分鐘。
+                    </p>
+                </div>
+            </div>
+
+            <div class="slide-container">
+                <div class="header-group">
+                    <h2>機器人學</h2>
+                    <h1>具身智慧<br>(Embodied AI)</h1>
+                </div>
+                <div class="content-box">
+                    <p class="intro-text">
+                        當 AI 擁有了身體，它將走出螢幕，真正走進物理世界。
+                    </p>
+                    <div class="section-title"><i class="fas fa-walking"></i> 莫拉維克悖論的突破</div>
+                    <p class="detail-text">
+                        「對人類困難的事（如下棋），對電腦很容易；對人類容易的事（如行走、拿杯子），對電腦卻極難。」<br>
+                        新一代人形機器人（如 Tesla Optimus）結合了強大的視覺感知與運動控制演算法，終於克服了這一悖論。它們能適應人類為人類設計的環境，執行危險、重複或需要精細操作的勞動。
+                    </p>
+                    <div class="section-title"><i class="fas fa-industry"></i> 工業 4.0 與黑燈工廠</div>
+                    <p class="detail-text">
+                        全自動化的生產線，機器人之間透過 5G 低延遲網絡相互協作。工廠無需開燈，機器可以 24 小時高效運轉，並透過預測性維護 (Predictive Maintenance) 在故障發生前自行修復，將生產效率推向極限。
+                    </p>
+                </div>
+            </div>
+
+             <div class="slide-container">
+                <div class="header-group">
+                    <h2>智慧教育</h2>
+                    <h1>知識傳承的<br>結構性變革</h1>
+                </div>
+                <div class="content-box">
+                    <p class="intro-text">
+                        終結「工廠式」的標準化教育，迎來「孔子式」的因材施教。
+                    </p>
+                    <div class="section-title"><i class="fas fa-chalkboard-teacher"></i> 智慧導師系統 (ITS)</div>
+                    <p class="detail-text">
+                        每個學生都將擁有一位全知全能的 AI 導師。系統能根據學生的答題狀況、學習速度甚至專注力（透過視線追蹤），即時生成客製化的教材與練習題。它不厭其煩，永遠在線，徹底解決教育資源分配不均的問題。
+                    </p>
+                    <div class="section-title"><i class="fas fa-language"></i> 知識的巴別塔倒塌</div>
+                    <p class="detail-text">
+                        即時語音翻譯與語義理解技術，打破了知識傳播的語言藩籬。台灣的學生可以無障礙地聆聽哈佛大學的課程，偏鄉兒童也能接觸全球最頂尖的教育資源。AI 讓知識的獲取不再受限於地理與語言。
+                    </p>
+                </div>
+            </div>
+
+            <div class="slide-container">
+                <div class="header-group">
+                    <h2>挑戰與風險</h2>
+                    <h1>潘朵拉魔盒的<br>雙面刃效應</h1>
+                </div>
+                <div class="content-box" style="border-left-color: #ff4444;">
+                    <p class="intro-text">
+                        科技進步的同時，我們必須正視其帶來的倫理、法律與社會衝擊。
+                    </p>
+                    <div class="section-title"><i class="fas fa-fingerprint" style="color: #ff4444;"></i> 偏見與黑箱問題</div>
+                    <p class="detail-text">
+                        <strong>演算法偏見：</strong> AI 模型由人類數據訓練，不可避免地繼承了人類社會的偏見（如種族、性別歧視）。
+                        <br>
+                        <strong>可解釋性 (XAI)：</strong> 深度學習如同一個「黑箱」，我們往往只知道輸入與輸出，卻無法理解中間的決策邏輯。這在司法判決與醫療診斷中構成了巨大的倫理風險。
+                    </p>
+                    <div class="section-title"><i class="fas fa-plug" style="color: #ff4444;"></i> 算力與能源危機</div>
+                    <p class="detail-text">
+                        訓練一個大型語言模型所需的電力，相當於數千個家庭一年的用電量。隨著模型規模擴大，數據中心的散熱與能耗成為巨大的環境負擔。如何在發展 AI 的同時兼顧綠色能源與永續發展，是工程師面臨的嚴峻考驗。
+                    </p>
+                </div>
+            </div>
+
+            <div class="slide-container" style="align-items: center; text-align: center;">
+                <div class="header-group" style="text-align: center;">
+                    <h2 style="border: none; margin-bottom: 20px;">終章：奇點臨近</h2>
+                    <h1 style="font-size: 4rem; text-shadow: 0 0 50px var(--p-accent);">人機共生</h1>
+                </div>
+                 <div class="content-box" style="width: 80%; background: transparent; border: none; box-shadow: none; text-align: center;">
+                    <p class="detail-text" style="font-size: 1.3rem; text-align: center; color: #fff; line-height: 2;">
+                        我們正站在人類歷史上最偉大的轉折點——<strong>奇點 (Singularity)</strong> 的邊緣。<br><br>
+                        人工智慧不是要取代人類，而是要賦予人類「超能力」。<br>
+                        從腦機介面 (Neuralink) 到 AGI (通用人工智慧)，界線將逐漸模糊。<br><br>
+                        未來不屬於與機器對抗的人，<br>
+                        而是屬於那些懂得<strong>與 AI 協作、共舞</strong>的人。<br>
+                        讓我們攜手何文才 & 阮文利 AI CORP.，共同定義這個輝煌的未來。
+                    </p>
+                </div>
+                <div style="margin-top: 50px; z-index: 100;">
+                    <button class="btn-celebrate" onclick="celebrate()">🎉 圓滿成功 🎉</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-hint">
+            <span><i class="fas fa-mouse"></i> 滾動內容</span> |
+            <span><i class="fas fa-arrow-right"></i> 下一頁</span>
+        </div>
+    </div>
+
+    <script>
+        const mainSite = document.getElementById('main-website');
+        const presentationLayer = document.getElementById('presentation-layer');
+        let isPresenting = false;
+
+        // --- NEW: NEURAL NETWORK BACKGROUND ANIMATION ---
+        const canvas = document.getElementById('neural-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const particleCount = 90; 
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 1.5; 
+                this.vy = (Math.random() - 0.5) * 1.5;
+                this.size = Math.random() * 2.5 + 1.5; 
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if(this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if(this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(212, 175, 55, 0.8)'; 
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for(let i=0; i<particleCount; i++) particles.push(new Particle());
+
+        function animateBg() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            for(let i=0; i<particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                
+                for(let j=i; j<particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if(dist < 150) {
+                        ctx.strokeStyle = `rgba(212, 175, 55, ${0.8 * (1 - dist/150)})`;
+                        ctx.lineWidth = 0.8; 
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateBg);
+        }
+        animateBg();
+
+        // --- 3D CARD TILT EFFECT ---
+        const tiltCards = document.querySelectorAll('.tilt-card');
+        tiltCards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = ((y - centerY) / centerY) * -10; 
+                const rotateY = ((x - centerX) / centerX) * 10;
+
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+            });
+        });
+
+
+        // --- ROBOT EYES LOGIC ---
+        const eyes = document.querySelectorAll('.mech-eye-container');
+        const irisGroups = document.querySelectorAll('.pupil-group');
+        let eyeAudioCtx = null;
+
+        function initEyeAudio() {
+            if(!eyeAudioCtx) {
+                eyeAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if(eyeAudioCtx.state === 'suspended') eyeAudioCtx.resume();
+        }
+
+        function playBlinkSound() {
+            if (!eyeAudioCtx) return;
+            const osc = eyeAudioCtx.createOscillator();
+            const gain = eyeAudioCtx.createGain();
+            const filter = eyeAudioCtx.createBiquadFilter();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(200, eyeAudioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(50, eyeAudioCtx.currentTime + 0.08);
+
+            filter.type = 'lowpass';
+            filter.frequency.value = 1500;
+
+            gain.gain.setValueAtTime(0.1, eyeAudioCtx.currentTime); 
+            gain.gain.exponentialRampToValueAtTime(0.001, eyeAudioCtx.currentTime + 0.1);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(eyeAudioCtx.destination);
+
+            osc.start();
+            osc.stop(eyeAudioCtx.currentTime + 0.12);
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            if(isPresenting) return; 
+
+            irisGroups.forEach((pupil, index) => {
+                const eye = eyes[index];
+                const rect = eye.getBoundingClientRect();
+                const eyeX = rect.left + rect.width / 2;
+                const eyeY = rect.top + rect.height / 2;
+                const angle = Math.atan2(e.clientY - eyeY, e.clientX - eyeX);
+                const dist = Math.min(35, Math.hypot(e.clientX - eyeX, e.clientY - eyeY) / 8); 
+                const pupX = Math.cos(angle) * dist;
+                const pupY = Math.sin(angle) * dist;
+                pupil.style.transform = `translate(${pupX}px, ${pupY}px)`;
+            });
+        });
+
+        function randomBlink() {
+            if(isPresenting) return;
+            initEyeAudio(); 
+
+            const eye = eyes[Math.floor(Math.random() * eyes.length)];
+            eye.classList.add('blink');
+            playBlinkSound(); 
+
+            setTimeout(() => eye.classList.remove('blink'), 100);
+            setTimeout(randomBlink, Math.random() * 3000 + 500);
+        }
+        randomBlink();
+
+
+        // --- PRESENTATION LOGIC ---
+        function launchPresentation() {
+            mainSite.style.opacity = 0;
+            setTimeout(() => {
+                mainSite.style.display = 'none';
+                presentationLayer.style.display = 'block';
+                initAudio();
+                speakIntro(); 
+                update(); 
+                isPresenting = true;
+            }, 800);
+        }
+
+        function speakIntro() {
+            if ('speechSynthesis' in window) {
+                const msg = new SpeechSynthesisUtterance();
+                msg.text = "歡迎來到未來。請享受這趟旅程。"; 
+                msg.lang = 'zh-TW'; 
+                msg.rate = 0.9; 
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        function speakEnding() {
+            if ('speechSynthesis' in window) {
+                const msg = new SpeechSynthesisUtterance();
+                msg.text = "謝謝大家的聆聽。未來，已來。"; 
+                msg.lang = 'zh-TW'; 
+                msg.rate = 0.9;
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        function exitPresentation() {
+            presentationLayer.style.display = 'none';
+            isPresenting = false;
+            mainSite.style.display = 'flex'; 
+            setTimeout(() => {
+                mainSite.style.opacity = 1;
+            }, 100);
+            if(actx) actx.suspend();
+            window.speechSynthesis.cancel(); 
+        }
+
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let actx;
+
+        function initAudio() {
+            if (!actx) actx = new AudioContext();
+            if (actx.state === 'suspended') actx.resume();
+            const osc = actx.createOscillator();
+            const gain = actx.createGain();
+            osc.type = 'sine'; osc.frequency.value = 50;
+            gain.gain.value = 0.1;
+            osc.connect(gain); gain.connect(actx.destination);
+            osc.start();
+        }
+
+        function sfxSwipe() {
+            if(!actx) return;
+            const o = actx.createOscillator(); const g = actx.createGain();
+            o.frequency.setValueAtTime(100, actx.currentTime);
+            o.frequency.exponentialRampToValueAtTime(600, actx.currentTime + 0.3);
+            g.gain.setValueAtTime(0.05, actx.currentTime);
+            g.gain.linearRampToValueAtTime(0, actx.currentTime + 0.3);
+            o.connect(g); g.connect(actx.destination);
+            o.start(); o.stop(actx.currentTime + 0.3);
+        }
+
+        function sfxWin() {
+            if(!actx) return;
+            [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+                const o = actx.createOscillator(); const g = actx.createGain();
+                o.type = 'sawtooth'; o.frequency.value = f;
+                g.gain.setValueAtTime(0, actx.currentTime);
+                g.gain.linearRampToValueAtTime(0.1, actx.currentTime + 0.1 + i*0.1);
+                g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 3);
+                o.connect(g); g.connect(actx.destination);
+                o.start(actx.currentTime + i*0.05); o.stop(actx.currentTime + 3);
+            });
+        }
+
+        let curr = 0;
+        const slides = document.querySelectorAll('.slide-container');
+        const bgs = document.querySelectorAll('.bg-layer');
+        const total = slides.length;
+
+        function update() {
+            slides.forEach(s => s.classList.remove('active'));
+            bgs.forEach(b => b.classList.remove('active'));
+            slides[curr].classList.add('active');
+            bgs[curr].classList.add('active');
+            
+            // Auto scroll to top when slide changes
+            const contentBox = slides[curr].querySelector('.content-box');
+            if(contentBox) contentBox.scrollTop = 0;
+            
+            sfxSwipe();
+        }
+
+        document.addEventListener('keydown', e => {
+            if (!isPresenting) return;
+            if(e.key === 'ArrowRight' || e.key === ' ') { if(curr < total-1) { curr++; update(); } }
+            if(e.key === 'ArrowLeft') { if(curr > 0) { curr--; update(); } }
+            if(e.key === 'Escape') { exitPresentation(); }
+        });
+
+        function celebrate() {
+            sfxWin(); 
+            speakEnding(); 
+            const duration = 3000; const end = Date.now() + duration;
+            (function frame() {
+                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#d4af37', '#fff'], zIndex: 20000 });
+                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#d4af37', '#fff'], zIndex: 20000 });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        }
+    </script>
+</body>
+</html>
