@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Future - Smooth Flow Colors</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --text-color: #f0f0f0;
+            --glass-bg: rgba(0, 0, 0, 0.3); /* Làm tối kính hơn một chút để nổi trên nền màu */
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
+
+        body {
+            color: var(--text-color);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 18px;
+            overflow-x: hidden;
+            
+            /* --- BÍ QUYẾT CHUYỂN MÀU MỀM MẠI --- */
+            /* Tạo một dải gradient khổng lồ chứa cả 5 tông màu */
+            background-image: linear-gradient(
+                to bottom,
+                #0f2027 0%,   /* Bắt đầu Xe (Xanh tối) */
+                #203a43 15%,
+                #002424 25%,  /* Chuyển sang Y tế (Xanh Teal tối) */
+                #004d40 40%,
+                #240b36 50%,  /* Chuyển sang NLP (Tím tối) */
+                #c31432 65%,
+                #141e30 75%,  /* Chuyển sang Fintech (Xanh Navy tối) */
+                #243b55 85%,
+                #1a2a1c 100%  /* Kết thúc Nông nghiệp (Xanh Rừng tối) */
+            );
+            /* Cố định nền để tạo hiệu ứng trôi chảy khi cuộn */
+            background-attachment: fixed;
+            background-size: 100% 400%; /* Kéo dài nền ra gấp 4 lần chiều cao màn hình */
+        }
+
+        /* --- NAV --- */
+        nav {
+            position: fixed; top: 0; width: 100%; padding: 20px 40px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(15px); /* Kính mờ hơn */
+            z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .logo { font-family: 'Orbitron'; font-weight: 900; font-size: 24px; color: #fff; letter-spacing: 2px; }
+        .nav-links a { color: #bbb; text-decoration: none; margin-left: 30px; font-weight: 600; transition: 0.3s; text-transform: uppercase; font-size: 14px; }
+        .nav-links a:hover { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+
+        /* --- HERO --- */
+        .hero {
+            height: 90vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center;
+            /* Nền hero trong suốt để lộ gradient body */
+            background: transparent;
+        }
+        .hero h1 {
+            font-family: 'Orbitron'; font-size: clamp(3rem, 7vw, 6rem);
+            background: linear-gradient(to right, #fff, #aaa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .hero p { color: #ccc; max-width: 700px; font-size: 1.2rem; }
+
+        /* --- COMMON SECTION STYLES --- */
+        section.content-block {
+            min-height: 100vh; padding: 100px 5%; position: relative;
+            display: flex; align-items: center;
+            /* Loại bỏ border cứng giữa các section */
+            border-bottom: none;
+            /* Xóa bỏ background riêng của từng section */
+            background: transparent !important; 
+        }
+
+        .container {
+            display: flex; align-items: center; gap: 80px; max-width: 1500px; width: 100%; margin: 0 auto;
+        }
+        section.content-block:nth-child(even) .container { flex-direction: row-reverse; }
+
+        /* --- THEMATIC ACCENTS (CHỈ GIỮ LẠI ĐIỂM NHẤN MÀU SẮC) --- */
+        
+        /* 1. XE TỰ LÁI: Cyber Blue */
+        #xe .accent-text { color: #00f2ff; text-shadow: 0 0 15px rgba(0, 242, 255, 0.5); }
+        #xe .tech-specs { border-left: 3px solid #00f2ff; }
+        #xe .main-img:hover, #xe .sub-img:hover { border-color: #00f2ff; box-shadow: 0 0 40px rgba(0, 242, 255, 0.6); }
+
+        /* 2. Y TẾ: Deep Teal */
+        #yte .accent-text { color: #64ffda; text-shadow: 0 0 15px rgba(100, 255, 218, 0.5); }
+        #yte .tech-specs { border-left: 3px solid #64ffda; }
+        #yte .main-img:hover, #yte .sub-img:hover { border-color: #64ffda; box-shadow: 0 0 40px rgba(100, 255, 218, 0.6); }
+
+        /* 3. NLP: Mystic Purple */
+        #nlp .accent-text { color: #d500f9; text-shadow: 0 0 15px rgba(213, 0, 249, 0.5); }
+        #nlp .tech-specs { border-left: 3px solid #d500f9; }
+        #nlp .main-img:hover, #nlp .sub-img:hover { border-color: #d500f9; box-shadow: 0 0 40px rgba(213, 0, 249, 0.6); }
+
+        /* 4. FINTECH: Gold */
+        #fin .accent-text { color: #ffd700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+        #fin .tech-specs { border-left: 3px solid #ffd700; }
+        #fin .main-img:hover, #fin .sub-img:hover { border-color: #ffd700; box-shadow: 0 0 40px rgba(255, 215, 0, 0.6); }
+
+        /* 5. NÔNG NGHIỆP: Forest Green */
+        #agri .accent-text { color: #4ade80; text-shadow: 0 0 15px rgba(74, 222, 128, 0.5); }
+        #agri .tech-specs { border-left: 3px solid #4ade80; }
+        #agri .main-img:hover, #agri .sub-img:hover { border-color: #4ade80; box-shadow: 0 0 40px rgba(74, 222, 128, 0.6); }
+
+
+        /* --- CONTENT STYLING --- */
+        .text-box { flex: 1; opacity: 0; transform: translateY(40px); transition: 1s cubic-bezier(0.22, 1, 0.36, 1); z-index: 2; }
+        
+        .text-box h2 {
+            font-family: 'Orbitron'; font-size: 3rem; color: #fff; margin-bottom: 20px;
+            display: flex; align-items: center; gap: 15px;
+        }
+        
+        .description p {
+            font-size: 1.15rem; line-height: 1.8; color: rgba(255,255,255,0.85); margin-bottom: 30px; text-align: justify;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5); /* Tăng độ rõ cho chữ trên nền màu */
+        }
+
+        .tech-specs {
+            background: var(--glass-bg); padding: 25px; border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px); /* Làm mờ nền mạnh hơn */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .tech-specs h3 { font-size: 0.9rem; color: #fff; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 2px; opacity: 0.8; }
+        
+        .feature-list li { margin-bottom: 12px; display: flex; align-items: center; gap: 15px; font-size: 1.1rem; }
+        .feature-list i { font-size: 1.2rem; }
+
+        /* --- GALLERY ZOOM 1.4x --- */
+        .gallery-box { flex: 1.4; opacity: 0; transform: scale(0.95); transition: 1s cubic-bezier(0.22, 1, 0.36, 1); z-index: 5; }
+        
+        .main-img, .sub-img {
+            object-fit: cover; border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.1); 
+            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); 
+            cursor: pointer; position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+
+        .main-img { width: 100%; height: 480px; margin-bottom: 20px; }
+        .sub-imgs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .sub-img { width: 100%; height: 240px; filter: brightness(0.8); }
+
+        /* HOVER EFFECTS */
+        .main-img:hover { transform: scale(1.4) translateY(-10px); z-index: 999; filter: brightness(1.1); }
+        .sub-img:hover { transform: scale(1.4) translateY(-10px); z-index: 999; filter: brightness(1.1); }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .container { flex-direction: column !important; }
+            .main-img { height: 350px; }
+            .nav-links { display: none; }
+        }
+        
+        /* Active Animation */
+        section.active .text-box { opacity: 1; transform: translateY(0); }
+        section.active .gallery-box { opacity: 1; transform: scale(1); }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo"><i class="fas fa-stream"></i> COLOR.FLOW</div>
+        <div class="nav-links">
+            <a href="#xe">Auto</a>
+            <a href="#yte">Med</a>
+            <a href="#nlp">NLP</a>
+            <a href="#fin">Fin</a>
+            <a href="#agri">Agri</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>DÒNG CHẢY CÔNG NGHỆ</h1>
+        <p>Cuộn xuống để cảm nhận sự chuyển biến sắc màu của tương lai.</p>
+    </section>
+
+    <section id="xe" class="content-block">
+        <div class="container">
+            <div class="text-box">
+                <h2 class="accent-text"><i class="fas fa-car"></i> Autonomous</h2>
+                <div class="description">
+                    <p>Hệ thống AI sử dụng LiDAR và Radar như đôi mắt xuyên màn đêm. Các điểm nhấn màu xanh neon phản ánh sự chính xác, tốc độ và trí tuệ nhân tạo đang điều khiển những cỗ máy tương lai trên đường phố.</p>
+                </div>
+                <div class="tech-specs">
+                    <h3>Thông số kỹ thuật</h3>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-eye accent-text"></i> Computer Vision 360°</li>
+                        <li><i class="fas fa-microchip accent-text"></i> Xử lý 500 TOPS (Tera Operations)</li>
+                        <li><i class="fas fa-map-marked accent-text"></i> Bản đồ HD Mapping</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="gallery-box">
+                <img src="1.jpg" class="main-img" alt="Xe 1">
+                <div class="sub-imgs-grid">
+                    <img src="2.jpg" class="sub-img" alt="Xe 2">
+                    <img src="3.jpg" class="sub-img" alt="Xe 3">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="yte" class="content-block">
+        <div class="container">
+            <div class="text-box">
+                <h2 class="accent-text"><i class="fas fa-user-md"></i> MedTech</h2>
+                <div class="description">
+                    <p>Sắc xanh ngọc biểu tượng cho sự chữa lành và an toàn sinh học. AI trong y tế đang mở ra kỷ nguyên mới, nơi robot hỗ trợ phẫu thuật với độ chính xác cấp độ vi mô và dữ liệu gen được giải mã trong tích tắc.</p>
+                </div>
+                <div class="tech-specs">
+                    <h3>Công nghệ sinh học</h3>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-dna accent-text"></i> Giải trình tự Gen (DNA)</li>
+                        <li><i class="fas fa-robot accent-text"></i> Phẫu thuật vi xâm lấn</li>
+                        <li><i class="fas fa-laptop-medical accent-text"></i> Chẩn đoán hình ảnh AI</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="gallery-box">
+                <img src="4.jpg" class="main-img" alt="Y tế 4">
+                <div class="sub-imgs-grid">
+                    <img src="5.jpg" class="sub-img" alt="Y tế 5">
+                    <img src="6.jpg" class="sub-img" alt="Y tế 6">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="nlp" class="content-block">
+        <div class="container">
+            <div class="text-box">
+                <h2 class="accent-text"><i class="fas fa-brain"></i> Neural AI</h2>
+                <div class="description">
+                    <p>Màu tím huyền bí đại diện cho chiều sâu của mạng nơ-ron nhân tạo. Các mô hình ngôn ngữ lớn (LLM) đang mô phỏng lại cách bộ não con người tư duy, sáng tạo và giao tiếp một cách trừu tượng.</p>
+                </div>
+                <div class="tech-specs">
+                    <h3>Trí tuệ nhân tạo</h3>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-project-diagram accent-text"></i> Transformer Architecture</li>
+                        <li><i class="fas fa-language accent-text"></i> Xử lý ngôn ngữ tự nhiên</li>
+                        <li><i class="fas fa-lightbulb accent-text"></i> Generative AI</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="gallery-box">
+                <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80" class="main-img" alt="AI Brain">
+                <div class="sub-imgs-grid">
+                    <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?auto=format&fit=crop&w=800&q=80" class="sub-img" alt="Coding">
+                    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80" class="sub-img" alt="Chip">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="fin" class="content-block">
+        <div class="container">
+            <div class="text-box">
+                <h2 class="accent-text"><i class="fas fa-chart-line"></i> Fintech</h2>
+                <div class="description">
+                    <p>Sắc vàng kim của thịnh vượng kết hợp với nền tối của bảo mật. Blockchain và AI đang xây dựng một hệ thống tài chính số minh bạch, nơi các giao dịch được bảo vệ bằng thuật toán thay vì niềm tin.</p>
+                </div>
+                <div class="tech-specs">
+                    <h3>Tài chính số</h3>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-shield-alt accent-text"></i> Cybersecurity</li>
+                        <li><i class="fas fa-coins accent-text"></i> Blockchain & Crypto</li>
+                        <li><i class="fas fa-bolt accent-text"></i> High-Frequency Trading</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="gallery-box">
+                <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80" class="main-img" alt="Stock">
+                <div class="sub-imgs-grid">
+                    <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=800&q=80" class="sub-img" alt="Card">
+                    <img src="https://images.unsplash.com/photo-1518546305927-5a555bb7020d?auto=format&fit=crop&w=800&q=80" class="sub-img" alt="Coin">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="agri" class="content-block">
+        <div class="container">
+            <div class="text-box">
+                <h2 class="accent-text"><i class="fas fa-leaf"></i> AgriTech</h2>
+                <div class="description">
+                    <p>Màu xanh lá tươi sáng nổi bật trên nền tối của đất đai. Công nghệ không tách rời thiên nhiên mà hòa nhập vào đó. Cảm biến IoT và Drone giúp nền nông nghiệp trở nên bền vững và thông minh hơn.</p>
+                </div>
+                <div class="tech-specs">
+                    <h3>Nông nghiệp 4.0</h3>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-satellite-dish accent-text"></i> IoT Sensors</li>
+                        <li><i class="fas fa-drone accent-text"></i> Drone giám sát</li>
+                        <li><i class="fas fa-cloud-sun accent-text"></i> Phân tích khí hậu</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="gallery-box">
+                <img src="7.jpg" class="main-img" alt="Nông nghiệp 7">
+                <div class="sub-imgs-grid">
+                    <img src="8.jpg" class="sub-img" alt="Nông nghiệp 8">
+                    <img src="9.jpg" class="sub-img" alt="Nông nghiệp 9">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.2 }); 
+
+        document.querySelectorAll('.content-block').forEach((section) => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
